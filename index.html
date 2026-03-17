@@ -8,15 +8,22 @@
 </head>
 <body>
   <div class="container">
-    <h1>Water Quest</h1>
-    <p class="game-instructions">Collect 20 items to complete the game!</p>
+    <h1>
+      <img src="img/cw_logo_horizontal.png" alt="charity: water logo">
+      <span class="game-title">Water Quest</span>
+      <span class="title-spacer" aria-hidden="true"></span>
+    </h1>
+    <p class="game-instructions">Collect 10 items before time runs out and avoid pollution taps that subtract points!</p>
     <div class="stats">
       <p>Cans Collected: <span id="current-cans">0</span></p>
       <p>Time Left: <span id="timer">30</span>s</p>
     </div>
     <div id="achievements" class="achievement"></div>
     <div class="game-grid"></div>
-    <button id="start-game">Start Game</button>
+    <div class="controls">
+      <button id="start-game">Start Game</button>
+      <button id="reset-game" class="secondary">Reset</button>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>
