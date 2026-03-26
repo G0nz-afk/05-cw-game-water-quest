@@ -1,6 +1,11 @@
 // Game configuration and state variables
 const GOAL_CANS = 10;       // Total items needed to win
-const GAME_DURATION = 30;   // Round duration in seconds
+const DIFFICULTY_TIMERS = {
+  easy: 45,
+  medium: 30,
+  hard: 20
+};
+const DEFAULT_DIFFICULTY = 'medium';
 const SPAWN_INTERVAL_MS = 1400;
 const POST_CLICK_DELAY_MS = 700;
 const BAD_ITEM_CHANCE = 0.3;
@@ -18,7 +23,8 @@ const LOSE_MESSAGES = [
   'Nice attempt. Jump back in and beat your score!'
 ];
 let currentCans = 0;        // Current number of items collected
-let timeLeft = GAME_DURATION;
+let selectedDifficulty = DEFAULT_DIFFICULTY;
+let timeLeft = DIFFICULTY_TIMERS[DEFAULT_DIFFICULTY];
 let gameActive = false;     // Tracks if game is currently running
 let clickLocked = false;
 let spawnInterval;          // Holds the interval for spawning cans
@@ -29,8 +35,19 @@ const currentCansDisplay = document.getElementById('current-cans');
 const timerDisplay = document.getElementById('timer');
 const statsDisplay = document.querySelector('.stats');
 const achievementsDisplay = document.getElementById('achievements');
+const difficultySelect = document.getElementById('difficulty-level');
 const startButton = document.getElementById('start-game');
 const resetButton = document.getElementById('reset-game');
+
+function getDifficultyDuration(level) {
+  return DIFFICULTY_TIMERS[level] ?? DIFFICULTY_TIMERS[DEFAULT_DIFFICULTY];
+}
+
+function updateTimeFromDifficulty() {
+  selectedDifficulty = difficultySelect.value;
+  timeLeft = getDifficultyDuration(selectedDifficulty);
+  updateTimerDisplay();
+}
 
 // Creates the 3x3 game grid where items will appear
 function createGrid() {
@@ -222,10 +239,12 @@ function tickTimer() {
 function startGame() {
   if (gameActive) return; // Prevent starting a new game if one is already active
 
+  selectedDifficulty = difficultySelect.value;
   currentCans = 0;
-  timeLeft = GAME_DURATION;
+  timeLeft = getDifficultyDuration(selectedDifficulty);
   gameActive = true;
   clickLocked = false;
+  difficultySelect.disabled = true;
   startButton.textContent = 'Game Running...';
   startButton.disabled = true;
 
@@ -246,6 +265,7 @@ function endGame(won) {
   clearInterval(spawnInterval); // Stop spawning water cans
   clearInterval(timerInterval); // Stop timer countdown
 
+  difficultySelect.disabled = false;
   startButton.disabled = false;
   startButton.textContent = 'Play Again';
 
@@ -263,9 +283,11 @@ function resetGame() {
   clearInterval(spawnInterval);
   clearInterval(timerInterval);
 
+  selectedDifficulty = difficultySelect.value;
   currentCans = 0;
-  timeLeft = GAME_DURATION;
+  timeLeft = getDifficultyDuration(selectedDifficulty);
 
+  difficultySelect.disabled = false;
   startButton.disabled = false;
   startButton.textContent = 'Start Game';
 
@@ -275,6 +297,17 @@ function resetGame() {
   showAchievement('Game reset. Press Start Game to play!', 'info');
 }
 
+function handleDifficultyChange() {
+  if (gameActive) return;
+
+  updateTimeFromDifficulty();
+  showAchievement(`Difficulty set to ${selectedDifficulty}. Press Start Game to play!`, 'info');
+}
+
 // Set up click handler for the start button
 startButton.addEventListener('click', startGame);
 resetButton.addEventListener('click', resetGame);
+difficultySelect.addEventListener('change', handleDifficultyChange);
+
+difficultySelect.value = DEFAULT_DIFFICULTY;
+updateTimeFromDifficulty();
